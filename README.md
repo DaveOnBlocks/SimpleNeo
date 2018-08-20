@@ -3,14 +3,14 @@ Provides a simplified interface to do common tasks against the Neo blockchain. T
 
 # Status
 This is currently an alpha project and has a lot to be done still. Some ideas are:
--Knowing when a transaction is confirmed instead of waiting 2 blocks
--Ability to open both .db3 and .json wallets (db3 wallets are handled by the neo.dll but json are handled within neo-gui code)
--Async operations
--Ability to deploy non nep-5 tokens
--Programatically define the network (will generate a protocol.json file at runtime though)
--Possibly make contractParamaters be generics (e.g. new SimpleParameter<BigInteger>(valueGoesHere)
--Possibly add an address object that can easily convert to script hash
--Ability to monitor the blockchain for notifications for a specific contract
+* Knowing when a transaction is confirmed instead of waiting 2 blocks
+* Ability to open both .db3 and .json wallets (db3 wallets are handled by the neo.dll but json are handled within neo-gui code)
+* Async operations
+* Ability to deploy non nep-5 tokens
+* Programatically define the network (will generate a protocol.json file at runtime though)
+* Possibly make contractParamaters be generics (e.g. new SimpleParameter<BigInteger>(valueGoesHere)
+* Possibly add an address object that can easily convert to script hash
+* Ability to monitor the blockchain for notifications for a specific contract
  
 
 # Example Usage
