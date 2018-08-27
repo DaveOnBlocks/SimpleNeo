@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>0.0.1</Version>
+    <Authors>DaveOnBlocks</Authors>
+    <Company />
+    <Description>A library that makes it simple to do common tasks against the NEO blockchain</Description>
+    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/DaveOnBlocks/SimpleNeo/</PackageProjectUrl>
+    <AssemblyVersion>0.0.0.1</AssemblyVersion>
+    <FileVersion>0.0.0.1</FileVersion>
+    <PackageTags>Neo</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Neo" Version="2.3.3" />
+    <PackageReference Include="Neo.VM" Version="2.0.3" />
+  </ItemGroup>
+
+</Project>
