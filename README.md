@@ -2,13 +2,28 @@
 Provides a simplified interface to do common tasks against the Neo blockchain. The existing Neo code base does not provide a good clean API for performing common tasks. The goal of this library is to abstract the underlying complexity of the Neo code base into a set of simple functions that make using Neo practial and simple from any .NET application.
 
 # Status
-This is currently an alpha project and has a lot to be done still. Some ideas are:
-* Ability to open both .db3 and .json wallets (db3 wallets are handled by the neo.dll but json are handled within neo-gui code)
+This is currently an alpha project and everything is subject to change.
+
+Current Wallet Functionality:
+* Open a db3 wallet file
+* Transfer NEO/GAS from a wallet
+* Get balance of NEO/GAS (of an open wallet)
+
+Current Contract Functionality:
+* Deploy a NEP-5 contract 
+* Load a contract from disk
+* Load a contract from the blockchain
+* Invoke a contract method locally against the NEO Virtual Machine
+* Invoke a contract against the blockchain
+
+Planned Functionality:
+* Ability to open both .db3 and .json wallets (db3 wallets are handled by the neo.dll but json are handled differently)
 * Async operations
 * Ability to deploy non nep-5 tokens
 * Programatically define the network (will generate a protocol.json file at runtime though)
-* Possibly add an address object that can easily convert to script hash
+* Possibly add an address object that can easily convert to script hash (Neo recently added a WalletAccount object)
 * Ability to monitor the blockchain for notifications for a specific contract
+* More control over which address is used in a wallet (via InvokeOptions)
  
 
 # Example Usage
@@ -24,18 +39,21 @@ using (var client = new Client(Directory.GetCurrentDirectory() + "\\privateChain
 
 
     //load a nep-5 contract from disk and deploy it
-    var contract = client.Contracts.LoadContract(@"C:\Demos\TutorialToken\TutorialToken\bin\Debug\TutorialToken.avm"); //get the hash from the disk version
+    var contract = client.Contracts.LoadContract(@"C:\Demos\TutorialToken\TutorialToken\bin\Debug\TutorialToken.avm"); 
 
     contract.Author = "Author";
     contract.Name = "Sample Coin";
     contract.Description = "Sample to show deploying a simple contract";
     contract.Email = "e@mail.com";
     contract.Version = DateTime.Now.ToString();
-    client.Contracts.DeployNEP5Contract(contract); //deploy a NEP-5 contract with a 05 return type, a 0710 parameter list, storage enabled, dynamic call not enabled.
+    //deploy a NEP-5 contract with a 05 return type, a 0710 parameter list, storage enabled, dynamic call not enabled.
+    client.Contracts.DeployNEP5Contract(contract); 
 
-    client.Contracts.WaitForContract(contract); //wait until the contract appears on the blockchain (by default, tries 10 times with a one second pause in between)
+    //wait until the contract appears on the blockchain (by default, tries 10 times with a one second pause in between)
+    client.Contracts.WaitForContract(contract); 
 
-    Console.WriteLine(contract.InvokeLocalMethod<string>("name")); //invoke a method locally using blockchain data but not altering data (this works the same as when you "test" invoke from neo-gui
+    //invoke a method locally using blockchain data but not altering data (this works the same as when you "test" invoke from neo-gui
+    Console.WriteLine(contract.InvokeLocalMethod<string>("name")); 
 
     var amount = new ContractParameter(ContractParameterType.Integer) {Value = (BigInteger) 101};
     var address1 = client.CurrentWallet.Addresses.First();
@@ -44,11 +62,13 @@ using (var client = new Client(Directory.GetCurrentDirectory() + "\\privateChain
     var from = new ContractParameter(ContractParameterType.Hash160) { Value = address1.ToArray() };
     var to = new ContractParameter(ContractParameterType.Hash160) { Value = address2.ToArray() };
 
-    var messages = contract.InvokeBlockchainMethod("transfer", from, to, amount); //invoke a method on the blockchain and retrieve any notification messages generated
+    //invoke a method on the blockchain and retrieve any notification messages generated
+    var messages = contract.InvokeBlockchainMethod("transfer", from, to, amount); 
     var matchingMessages = messages.FindMessagesThatStartWith("transfer");
     if (matchingMessages.Count != 0)
     {
-        var firstMatch = matchingMessages[0]; //firstMatch is an array of contractParameters for the different parts of the notification message
+        //firstMatch is an array of contractParameters for the different parts of the notification message
+        var firstMatch = matchingMessages[0]; 
         Console.WriteLine($"Transfer was invoked. From: {firstMatch[1]} To: {firstMatch[2]} Amount: {firstMatch[3]}");
     }
 
