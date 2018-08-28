@@ -51,7 +51,15 @@ namespace SimpleNeo.Transactions
             }
 
             //parameters.Add(new ContractParameter(ContractParameterType.Array));
-            while (Client.CurrentWallet.WalletHeight < Blockchain.Default.HeaderHeight) Thread.Sleep(1000); //get the wallet in sync or else MakeTransaction will fail
+            var walletSyncAttempts = 0;
+            while (Client.CurrentWallet.NeoWallet.WalletHeight != Blockchain.Default.HeaderHeight)
+            {
+                walletSyncAttempts++;
+                Thread.Sleep(1000); //get the wallet in sync or else MakeTransaction will fail
+                if (walletSyncAttempts >= 30)
+                    throw new WalletException("could not get the wallet in sync after 30 attempts");
+            }
+
 
             using (var sb = new ScriptBuilder())
             {
@@ -69,34 +77,37 @@ namespace SimpleNeo.Transactions
 
 
              
-                InvocationTransaction walletTx = null;
-                walletTx = Client.CurrentWallet.NeoWallet.MakeTransaction(new InvocationTransaction
-                {
-                    Version = tx.Version,
-                    Script = tx.Script,
-                    Gas = tx.Gas,
-                    Attributes = tx.Attributes,
-                    Inputs = tx.Inputs,
-                    Outputs = tx.Outputs
-                }, fee: Fixed8.FromDecimal(0.001m)); //all transactions need something so include a small fee
+//                InvocationTransaction walletTx = null;
+//                walletTx = Client.CurrentWallet.NeoWallet.MakeTransaction(new InvocationTransaction
+//                {
+//                    Version = tx.Version,
+//                    Script = tx.Script,
+//                    Gas = tx.Gas,
+//                    Attributes = tx.Attributes,
+//                    Inputs = tx.Inputs,
+//                    Outputs = tx.Outputs
+//                }, fee: Fixed8.Zero); //all transactions need something so include a small fee
 
 
-                if (walletTx == null) throw new NeoTransactionBuildException("Creating a TX resulted in a null transaction");
+                //if (walletTx == null) throw new NeoTransactionBuildException("Creating a TX resulted in a null transaction");
 
+                //TODO: make the address a selection
+                tx.Attributes = new TransactionAttribute[] { new TransactionAttribute() { Usage = TransactionAttributeUsage.Script, Data = Client.CurrentWallet.GetAddresses().First().ToArray() }};
 
-                ContractParametersContext context;
-                try
-                {
-                    context = new ContractParametersContext(tx);
-                }
-                catch (InvalidOperationException)
-                {
-                    throw new ApplicationException("unsynchronized block");
-                }
+//                ContractParametersContext context;
+//                try
+//                {
+//                    context = new ContractParametersContext(tx);
+//                }
+//                catch (InvalidOperationException)
+//                {
+//                    throw new ApplicationException("unsynchronized block");
+//                }
+//
+//                var sign = Client.CurrentWallet.NeoWallet.Sign(context);
 
-                var sign = Client.CurrentWallet.NeoWallet.Sign(context);
-
-                var engine = ApplicationEngine.Run(walletTx.Script, walletTx);
+                
+                var engine = ApplicationEngine.Run(tx.Script, tx);
                 var results = new StringBuilder();
                 results.AppendLine($"Called: {methodName}");
                 results.AppendLine($"VM State: {engine.State}");
@@ -224,7 +235,7 @@ namespace SimpleNeo.Transactions
             if (context.Completed)
             {
                 context.Verifiable.Scripts = context.GetScripts();
-                var saveTransaction = Client.CurrentWallet.NeoWallet.SaveTransaction(walletTx); //changes with different versions of NEO
+                Client.CurrentWallet.NeoWallet.ApplyTransaction(walletTx); //changes with different versions of NEO
                 //Wallet.ApplyTransaction(walletTx);
 
                 var relay = _node.Relay(walletTx);
@@ -252,6 +263,21 @@ namespace SimpleNeo.Transactions
                         return false;
                     }
                 }
+
+//                while(Client.CurrentWallet.WalletHeight < TxFoundInBlock && WalletIndexer.IndexHeight < TxFoundInBlock) //make sure the wallet gets this block
+//                {
+//                    Thread.Sleep(1000);
+//                }
+
+                //ensure we have an unspent coin back to use?
+                //seems like the WalletIndexer is running on a background thread so the block may not be fully processed
+                //e.g. the unconfirmed array in the wallet may not be updated in real time. The only event we have is that BlockChain.PersistCompleted was done which means we have the block stored to disk locally, this does not mean
+                //that the wallet has completed updating based on the new block!
+                while(Client.CurrentWallet.NeoWallet.FindUnspentCoins(Blockchain.UtilityToken.Hash, walletTx.NetworkFee, new UInt160[] { Client.CurrentWallet.GetAddresses().First() }) == null)
+                {
+                    Thread.Sleep(500); 
+                }
+                
             }
             else
             {
@@ -269,9 +295,14 @@ namespace SimpleNeo.Transactions
             {
                 Console.WriteLine(transaction.Type + " " + transaction.Hash);
                 if (transaction.Hash == WatchForTx)
+                {
                     TxFound = true;
+                    TxFoundInBlock = e.Index;
+                }
             }
         }
+
+        private uint TxFoundInBlock { get; set; }
 
         public NotifyMessages InvokeBlockchainMethod(UInt160 contractHash, string methodToInvoke, InvokeOptions options, params ContractParameter[] userSpecifiedParameters)
         {

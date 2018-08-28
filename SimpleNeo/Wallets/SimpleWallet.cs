@@ -25,7 +25,14 @@ namespace SimpleNeo.Wallets
 
         internal UserWallet NeoWallet { get; set; } //the neo wallet we perform operations against
 
-        public IEnumerable<UInt160> Addresses => NeoWallet.GetAddresses();
+        public IEnumerable<UInt160> GetAddresses()
+        {
+            foreach (var walletAccount in NeoWallet.GetAccounts())
+            {
+                yield return walletAccount.ScriptHash;
+            }
+            //return NeoWallet.GetAccounts();
+        }
 
         public void Dispose()
         {
@@ -36,7 +43,8 @@ namespace SimpleNeo.Wallets
 
         public void Rebuild()
         {
-            NeoWallet.Rebuild();
+            WalletIndexer.RebuildIndex();
+            //NeoWallet.Rebuild();
             while (NeoWallet.WalletHeight < Blockchain.Default.HeaderHeight)
             {
                 Thread.Sleep(1000);
@@ -47,7 +55,7 @@ namespace SimpleNeo.Wallets
         {
             var tempWallet = UserWallet.Open(path, password);
             while (tempWallet.WalletHeight < Blockchain.Default.HeaderHeight) Thread.Sleep(500); //sync the wallet
-            tempWallet.LoadTransactions();
+            //tempWallet.LoadTransactions();
             NeoWallet = tempWallet; //UserWallet type has a method to LoadTransactions. The general wallet does not
         }
 
@@ -82,10 +90,10 @@ namespace SimpleNeo.Wallets
             if (context.Completed)
             {
                 context.Verifiable.Scripts = context.GetScripts();
-                var saveTransaction = NeoWallet.SaveTransaction(walletTx); //changes with different versions of NEO
-                //Wallet.ApplyTransaction(walletTx);
+                NeoWallet.ApplyTransaction(walletTx); //changes with different versions of NEO
                 var relay = _node.Relay(walletTx);
 
+                //TODO: make this use our transaction watcher
                 var originalHeight = Blockchain.Default.Height; //store the height we sent at then wait for the next block
                 //possibly check if sign/relay/save has actually worked? 
 

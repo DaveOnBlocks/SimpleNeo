@@ -100,7 +100,7 @@ namespace SimpleNeo
             
             var simpleWallet = new SimpleWallet(LocalNode);
             simpleWallet.Open(path,password);
-
+            _logger.LogMessage("Index Height is :" + WalletIndexer.IndexHeight);
             this.Transaction = new TransactionExecutionEngine(this.LocalNode);
             this.Contracts = new ContractEngine(this.Transaction);
             Client.CurrentWallet = simpleWallet;
