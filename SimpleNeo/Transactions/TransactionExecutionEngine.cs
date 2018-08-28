@@ -52,7 +52,7 @@ namespace SimpleNeo.Transactions
 
             //parameters.Add(new ContractParameter(ContractParameterType.Array));
             var walletSyncAttempts = 0;
-            while (Client.CurrentWallet.NeoWallet.WalletHeight != Blockchain.Default.HeaderHeight)
+            while (Client.CurrentWallet.NeoWallet.WalletHeight < Blockchain.Default.HeaderHeight)
             {
                 walletSyncAttempts++;
                 Thread.Sleep(1000); //get the wallet in sync or else MakeTransaction will fail

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Threading;
@@ -8,6 +9,7 @@ using Neo;
 using Neo.Core;
 using Neo.Cryptography;
 using Neo.Implementations.Wallets.EntityFramework;
+using Neo.Implementations.Wallets.NEP6;
 using Neo.Network;
 using Neo.SmartContract;
 using Neo.Wallets;
@@ -23,7 +25,7 @@ namespace SimpleNeo.Wallets
             _node = node;
         }
 
-        internal UserWallet NeoWallet { get; set; } //the neo wallet we perform operations against
+        internal Wallet NeoWallet { get; set; } //the neo wallet we perform operations against
 
         public IEnumerable<UInt160> GetAddresses()
         {
@@ -36,7 +38,8 @@ namespace SimpleNeo.Wallets
 
         public void Dispose()
         {
-            NeoWallet?.Dispose();
+            if (this.NeoWallet is IDisposable disposable)
+                disposable.Dispose();
         }
 
         public uint WalletHeight => NeoWallet.WalletHeight;
@@ -53,7 +56,18 @@ namespace SimpleNeo.Wallets
 
         public void Open(string path, string password)
         {
-            var tempWallet = UserWallet.Open(path, password);
+            Wallet tempWallet;
+            if (Path.GetExtension(path) == ".db3") {
+                tempWallet = UserWallet.Open(path, password);
+            }
+            else
+            {
+                var nep6wallet = new NEP6Wallet(path);
+                nep6wallet.Unlock(password);
+                tempWallet = nep6wallet;                
+            }
+
+            
             while (tempWallet.WalletHeight < Blockchain.Default.HeaderHeight) Thread.Sleep(500); //sync the wallet
             //tempWallet.LoadTransactions();
             NeoWallet = tempWallet; //UserWallet type has a method to LoadTransactions. The general wallet does not
