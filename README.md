@@ -1,5 +1,7 @@
 # SimpleNeo
-Provides a simplified interface to do common tasks against the Neo blockchain. The existing Neo code base does not provide a good clean API for performing common tasks. The goal of this library is to abstract the underlying complexity of the Neo code base into a set of simple functions that make using Neo practial and simple from any .NET application.
+Provides a simplified interface to do common tasks against Neo blockchain. The existing Neo code base does not provide a good clean API for performing common tasks. The goal of this library is to abstract the underlying complexity of the Neo code base into a set of simple functions that make using Neo practial and simple from any .NET application.
+
+SimpleNeo runs as a full node. This means the entire blockchain is downloaded to be used. It also does not require any other services to be running (e.g. NeoScan API) to allow it to work. This allows you to easily setup an environment to develop in, not have a reliance on any RPC node being online/available/fast, as well as enable features that RPC does not expose.
 
 # Status
 This is currently an alpha project and everything is subject to change.
