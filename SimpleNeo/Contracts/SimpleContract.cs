@@ -6,11 +6,11 @@ using SimpleNeo.Transactions;
 
 namespace SimpleNeo.Contracts
 {
-    public class IntuitiveContract
+    public class SimpleContract
     {
         private readonly TransactionExecutionEngine _transactionExecutionEngine;
 
-        internal IntuitiveContract(ContractState state, TransactionExecutionEngine transactionExecutionEngine)
+        internal SimpleContract(ContractState state, TransactionExecutionEngine transactionExecutionEngine)
         {
             _transactionExecutionEngine = transactionExecutionEngine;
             Name = state.Name;
@@ -30,7 +30,7 @@ namespace SimpleNeo.Contracts
 
         public bool HasStorage { get; set; }
 
-        internal IntuitiveContract(byte[] script, TransactionExecutionEngine transactionExecutionEngine)
+        internal SimpleContract(byte[] script, TransactionExecutionEngine transactionExecutionEngine)
         {
             _transactionExecutionEngine = transactionExecutionEngine;
             Script = script;

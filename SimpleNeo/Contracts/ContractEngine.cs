@@ -25,15 +25,15 @@ namespace SimpleNeo.Contracts
             _transactionExecutionEngine = transactionExecutionEngine;
         }
 
-        public IntuitiveContract GetContract(UInt160 scriptHash)
+        public SimpleContract GetContract(UInt160 scriptHash)
         {
             var contractState = Blockchain.Default.GetContract(scriptHash);
             if (contractState == null)
                 return null;
-            return new IntuitiveContract(contractState, _transactionExecutionEngine);
+            return new SimpleContract(contractState, _transactionExecutionEngine);
         }
 
-        public bool DeployNEP5Contract(IntuitiveContract contract)
+        public bool DeployNEP5Contract(SimpleContract contract)
         {
             //check to see if the hash is already deployed
             var contractState = Blockchain.Default.GetContract(contract.ScriptHash);
@@ -81,12 +81,12 @@ namespace SimpleNeo.Contracts
             return false;
         }
 
-        public IntuitiveContract LoadContract(string avmPath)
+        public SimpleContract LoadContract(string avmPath)
         {
-            return new IntuitiveContract(File.ReadAllBytes(avmPath), _transactionExecutionEngine);
+            return new SimpleContract(File.ReadAllBytes(avmPath), _transactionExecutionEngine);
         }
 
-        public ContractState WaitForContract(IntuitiveContract contractData, int maxAttempts = 30)
+        public ContractState WaitForContract(SimpleContract contractData, int maxAttempts = 30)
         {
             var seekCount = 0;
             var contractFound = false;

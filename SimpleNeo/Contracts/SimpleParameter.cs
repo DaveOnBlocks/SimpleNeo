@@ -1,58 +1,60 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Text;
+﻿using System.Numerics;
 using Neo;
 using Neo.SmartContract;
 
 namespace SimpleNeo.Contracts
 {
-    public class SimpleParameter //where T: UInt160, UInt256, BigInteger, Byte[], Boolean, String
+    public class SimpleParameter
     {
-        public ContractParameterType ParameterType { get; }
-        public object Value { get; set; }
-
-        public static SimpleParameter CreateParameter(BigInteger value)
+        public SimpleParameter(BigInteger value) : this(value, ContractParameterType.Integer)
         {
-            return new SimpleParameter(value, ContractParameterType.Integer);
         }
 
-        public static SimpleParameter CreateParameter(UInt160 value)
+        public SimpleParameter(UInt160 value) : this(value, ContractParameterType.Hash160)
         {
-            return new SimpleParameter(value, ContractParameterType.Hash160);
         }
 
-//        public static SimpleParameter<UInt256> CreateParameter(UInt256 value)
-//        {
-//            return new SimpleParameter<UInt256>(value, ContractParameterType.Hash256);
-//        }
-//
-//        public static SimpleParameter<byte[]> CreateParameter(byte[] value)
-//        {
-//            return new SimpleParameter<byte[]>(value, ContractParameterType.ByteArray);
-//        }
-//
-//        public static SimpleParameter<bool> CreateParameter(bool value)
-//        {
-//            return new SimpleParameter<bool>(value, ContractParameterType.ByteArray);
-//        }
-//
-//        public static SimpleParameter<string> CreateParameter(string value)
-//        {
-//            return new SimpleParameter<string>(value, ContractParameterType.String);
-//        }
-//
-//        public static SimpleParameter<Array> CreateParameter(Array value)
-//        {
-//            return new SimpleParameter<Array>(value, ContractParameterType.Array);
-//        }
+        public SimpleParameter(string value) : this(value, ContractParameterType.String)
+        {
+        }
+
+        public SimpleParameter(byte[] value) : this(value, ContractParameterType.ByteArray)
+        {
+        }
+        //        public static SimpleParameter<UInt256> CreateParameter(UInt256 value)
+        //        {
+        //            return new SimpleParameter<UInt256>(value, ContractParameterType.Hash256);
+        //        }
+        //
+        //        public static SimpleParameter<byte[]> CreateParameter(byte[] value)
+        //        {
+        //            return new SimpleParameter<byte[]>(value, ContractParameterType.ByteArray);
+        //        }
+        //
+        //        public static SimpleParameter<bool> CreateParameter(bool value)
+        //        {
+        //            return new SimpleParameter<bool>(value, ContractParameterType.ByteArray);
+        //        }
+        //
+        //        public static SimpleParameter<string> CreateParameter(string value)
+        //        {
+        //            return new SimpleParameter<string>(value, ContractParameterType.String);
+        //        }
+        //
+        //        public static SimpleParameter<Array> CreateParameter(Array value)
+        //        {
+        //            return new SimpleParameter<Array>(value, ContractParameterType.Array);
+        //        }
 
 
-        private SimpleParameter(object value, ContractParameterType type)
+        public SimpleParameter(object value, ContractParameterType type)
         {
             ParameterType = type;
-            this.Value = value;
+            Value = value;
         }
+
+        public ContractParameterType ParameterType { get; }
+        public object Value { get; set; }
 
         //TODO: the remaining types
 //        internal ContractParameterType ToContractParameterType()
@@ -64,14 +66,5 @@ namespace SimpleNeo.Contracts
 //            if (typeof(T) == typeof(byte[])) //?
 //                return ContractParameterType.Signature;
 //        }
-        public static SimpleParameter CreateParameter(string value)
-        {
-            return new SimpleParameter(value, ContractParameterType.String);
-        }
-
-        public static SimpleParameter CreateParameter(byte[] value)
-        {
-            return new SimpleParameter(value, ContractParameterType.ByteArray);
-        }
     }
 }

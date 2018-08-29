@@ -17,11 +17,11 @@ Current Contract Functionality:
 * Load a contract from the blockchain
 * Invoke a contract method locally against the NEO Virtual Machine
 * Invoke a contract against the blockchain
+* Programatically define the network (will generate a protocol.json file at runtime)
 
 Planned Functionality:
 * Async operations
-* Ability to deploy non nep-5 tokens
-* Programatically define the network (will generate a protocol.json file at runtime though)
+* Ability to deploy non nep-5 contracts
 * Possibly add an address object that can easily convert to script hash (Neo recently added a WalletAccount object)
 * Ability to monitor the blockchain for notifications for a specific contract
 * More control over which address is used in a wallet (via InvokeOptions)
