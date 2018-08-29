@@ -7,7 +7,7 @@ SimpleNeo runs as a full node. This means the entire blockchain is downloaded to
 This is currently an alpha project and everything is subject to change.
 
 Current Wallet Functionality:
-* Open a db3 wallet file
+* Open a db3/json wallet file
 * Transfer NEO/GAS from a wallet
 * Get balance of NEO/GAS (of an open wallet)
 
@@ -19,7 +19,6 @@ Current Contract Functionality:
 * Invoke a contract against the blockchain
 
 Planned Functionality:
-* Ability to open both .db3 and .json wallets (db3 wallets are handled by the neo.dll but json are handled differently)
 * Async operations
 * Ability to deploy non nep-5 tokens
 * Programatically define the network (will generate a protocol.json file at runtime though)
@@ -79,3 +78,8 @@ using (var client = new Client(Directory.GetCurrentDirectory() + "\\privateChain
 
 }
 ```
+
+#Credits and License
+The implementations of a lot of functionality has been discovered via the [neo-gui](https://github.com/neo-project/neo-gui) project. 
+
+This project is released under the MIT license, see [LICENSE](/LICENSE) for more details.
