@@ -2,12 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
-using System.Linq;
-using System.Numerics;
 using System.Threading;
 using Neo;
 using Neo.Core;
-using Neo.Cryptography;
 using Neo.Implementations.Wallets.EntityFramework;
 using Neo.Implementations.Wallets.NEP6;
 using Neo.Network;
@@ -27,47 +24,42 @@ namespace SimpleNeo.Wallets
 
         internal Wallet NeoWallet { get; set; } //the neo wallet we perform operations against
 
-        public IEnumerable<UInt160> GetAddresses()
-        {
-            foreach (var walletAccount in NeoWallet.GetAccounts())
-            {
-                yield return walletAccount.ScriptHash;
-            }
-            //return NeoWallet.GetAccounts();
-        }
+        public uint WalletHeight => NeoWallet.WalletHeight;
 
         public void Dispose()
         {
-            if (this.NeoWallet is IDisposable disposable)
+            if (NeoWallet is IDisposable disposable)
                 disposable.Dispose();
         }
 
-        public uint WalletHeight => NeoWallet.WalletHeight;
+        public IEnumerable<UInt160> GetAddresses()
+        {
+            foreach (var walletAccount in NeoWallet.GetAccounts()) yield return walletAccount.ScriptHash;
+            //return NeoWallet.GetAccounts();
+        }
 
         public void Rebuild()
         {
             WalletIndexer.RebuildIndex();
             //NeoWallet.Rebuild();
-            while (NeoWallet.WalletHeight < Blockchain.Default.HeaderHeight)
-            {
-                Thread.Sleep(1000);
-            }
+            while (NeoWallet.WalletHeight < Blockchain.Default.HeaderHeight) Thread.Sleep(1000);
         }
 
         public void Open(string path, string password)
         {
             Wallet tempWallet;
-            if (Path.GetExtension(path) == ".db3") {
+            if (Path.GetExtension(path) == ".db3")
+            {
                 tempWallet = UserWallet.Open(path, password);
             }
             else
             {
                 var nep6wallet = new NEP6Wallet(path);
                 nep6wallet.Unlock(password);
-                tempWallet = nep6wallet;                
+                tempWallet = nep6wallet;
             }
 
-            
+
             while (tempWallet.WalletHeight < Blockchain.Default.HeaderHeight) Thread.Sleep(500); //sync the wallet
             //tempWallet.LoadTransactions();
             NeoWallet = tempWallet; //UserWallet type has a method to LoadTransactions. The general wallet does not
@@ -131,7 +123,7 @@ namespace SimpleNeo.Wallets
 
         public void PerformFundTransfer(Fixed8 amountToTransfer, string address, IInventory assetId)
         {
-          PerformFundTransfer(amountToTransfer, AddressToScriptHash(address), assetId);
+            PerformFundTransfer(amountToTransfer, AddressToScriptHash(address), assetId);
         }
 
         public void PerformFundTransfer(Fixed8 amountToTransfer, UInt160 destinationScriptHash, IInventory assetId)
@@ -141,7 +133,7 @@ namespace SimpleNeo.Wallets
 
         public Fixed8 GetBalance(UInt256 assetId)
         {
-            return this.NeoWallet.GetBalance(assetId);
+            return NeoWallet.GetBalance(assetId);
         }
     }
 }
