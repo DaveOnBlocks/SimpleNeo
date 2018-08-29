@@ -12,7 +12,7 @@ Current Wallet Functionality:
 * Get balance of NEO/GAS (of an open wallet)
 
 Current Contract Functionality:
-* Deploy a NEP-5 contract 
+* Deploy contracts (shortcut for NEP-5)
 * Load a contract from disk
 * Load a contract from the blockchain
 * Invoke a contract method locally against the NEO Virtual Machine
@@ -21,7 +21,6 @@ Current Contract Functionality:
 
 Planned Functionality:
 * Async operations
-* Ability to deploy non nep-5 contracts
 * Possibly add an address object that can easily convert to script hash (Neo recently added a WalletAccount object)
 * Ability to monitor the blockchain for notifications for a specific contract
 * More control over which address is used in a wallet (via InvokeOptions)
