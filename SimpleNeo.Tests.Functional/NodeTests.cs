@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.IO;
+using NUnit.Framework;
 
 namespace SimpleNeo.Tests
 {
@@ -8,8 +9,10 @@ namespace SimpleNeo.Tests
         [Test]
         public void StartNode()
         {
-            //TODO: I want to be able to set network options here instead of protocol.json (or to specify a json file to read in)
-            using (var node = new SimpleNeo.Client("privateChain", new NunitRealTimeLogger()))
+            var configuration = NetworkConfiguration.PrivateNet();
+            configuration.ChainPath = Directory.GetCurrentDirectory() + "\\privateChain";
+
+            using (var node = new SimpleNeo.Client(configuration, new NunitRealTimeLogger()))
             {
                 node.Start();
             }

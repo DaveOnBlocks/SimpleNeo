@@ -13,7 +13,9 @@ namespace SimpleNeo.Tests
         [OneTimeSetUp]
         public void Initialize()
         {
-            _client = new Client(Directory.GetCurrentDirectory() + "\\privateChain", new NunitRealTimeLogger());
+            var configuration = NetworkConfiguration.PrivateNet();
+            configuration.ChainPath = Directory.GetCurrentDirectory() + "\\privateChain";
+            _client = new Client(configuration, new NunitRealTimeLogger());
             _client.Start();
         }
 

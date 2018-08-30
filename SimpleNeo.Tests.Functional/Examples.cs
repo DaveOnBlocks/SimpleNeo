@@ -14,7 +14,9 @@ namespace SimpleNeo.Tests
     {
         public void SendFunds()
         {
-            using (var client = new Client(Directory.GetCurrentDirectory() + "\\privateChain"))
+            var configuration = NetworkConfiguration.PrivateNet();
+            configuration.ChainPath = Directory.GetCurrentDirectory() + "\\privateChain";
+            using (var client = new Client(configuration))
             {
                 client.Start();
                 client.OpenWallet("myWallet.db3", "*******");
@@ -38,12 +40,12 @@ namespace SimpleNeo.Tests
 
                 Console.WriteLine(contract.InvokeLocalMethod<string>("name")); //invoke a method locally using blockchain data but not altering data (this works the same as when you "test" invoke from neo-gui
 
-                var amount = SimpleParameter.CreateParameter(101);
-                var address1 = Client.CurrentWallet.Addresses.First();
-                var address2 = Client.CurrentWallet.Addresses.ToList()[1]; 
+                var amount = new SimpleParameter(101);
+                var address1 = Client.CurrentWallet.GetAddresses().First();
+                var address2 = Client.CurrentWallet.GetAddresses().ToList()[1]; 
 
-                var from = SimpleParameter.CreateParameter(address1);
-                var to = SimpleParameter.CreateParameter(address2);
+                var from = new SimpleParameter(address1);
+                var to = new SimpleParameter(address2);
 
                 var messages = contract.InvokeBlockchainMethod("transfer", from, to, amount); //invoke a method on the blockchain and retrieve any notification messages generated
                 var matchingMessages = messages.FindMessagesThatStartWith("transfer");

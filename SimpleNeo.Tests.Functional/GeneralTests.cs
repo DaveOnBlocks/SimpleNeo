@@ -9,12 +9,15 @@ namespace SimpleNeo.Tests
     public class GeneralTests
     {
         private Client _client;
-        private IntuitiveContract _contract;
+        private SimpleContract _contract;
 
         [OneTimeSetUp]
         public void Initialize()
         {
-            _client = new Client(Directory.GetCurrentDirectory() + "\\privateChain", new NunitRealTimeLogger());
+            var configuration = NetworkConfiguration.PrivateNet();
+            configuration.ChainPath = Directory.GetCurrentDirectory() + "\\privateChain";
+
+            _client = new Client(configuration, new NunitRealTimeLogger());
             _client.Start();
             _client.OpenWallet("..\\..\\wallets\\owner.db3", "test");
            //_client.CurrentWallet.Rebuild();

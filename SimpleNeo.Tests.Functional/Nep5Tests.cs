@@ -13,7 +13,7 @@ namespace SimpleNeo.Tests.Functional
     public class Nep5Tests
     {
         private Client _client;
-        private IntuitiveContract _contract;
+        private SimpleContract _contract;
         private SimpleParameter _nonOwnerParameter;
         private SimpleParameter _ownerParameter;
         private UInt160 _owner;
@@ -22,20 +22,23 @@ namespace SimpleNeo.Tests.Functional
         [OneTimeSetUp]
         public void Initialize()
         {
-            _client = new Client(Directory.GetCurrentDirectory()  + "\\privateChain" ,new NunitRealTimeLogger());
+            var configuration = NetworkConfiguration.PrivateNet();
+            configuration.ChainPath = Directory.GetCurrentDirectory() + "\\privateChain";
+
+            _client = new Client(configuration ,new NunitRealTimeLogger());
             _client.Start();
 
             _client.OpenWallet("wallets\\nonOwner.db3", "test");
-            _nonOwner = Client.CurrentWallet.Addresses.First();
+            _nonOwner = Client.CurrentWallet.GetAddresses().First();
             _client.OpenWallet("wallets\\owner.db3", "test");
-            _owner = Client.CurrentWallet.Addresses.First();
+            _owner = Client.CurrentWallet.GetAddresses().First();
 
             //If you have not opened a wallet, contracts will not work. may be hard to use due to that
             //the contract from disk, will not know the parameters
             _contract = _client.Contracts.LoadContract(@"C:\Demos\TutorialToken\TutorialToken\bin\Debug\TutorialToken.avm"); //get the hash from the disk version
             _contract = _client.Contracts.GetContract(_contract.ScriptHash); //get the data from the network
-            _nonOwnerParameter = SimpleParameter.CreateParameter(_owner);
-            _ownerParameter = SimpleParameter.CreateParameter(_nonOwner);
+            _nonOwnerParameter = new SimpleParameter(_owner);
+            _ownerParameter = new SimpleParameter(_nonOwner);
         }
 
         [OneTimeTearDown]
@@ -47,14 +50,14 @@ namespace SimpleNeo.Tests.Functional
         [Test]
         public void BalanceOf_GetInvalidAddressBalance()
         {
-            var param = SimpleParameter.CreateParameter(new UInt160());
+            var param = new SimpleParameter(new UInt160());
             Assert.Throws<NeoExecutionException>(() => _contract.InvokeLocalMethod<BigInteger>("balanceOf", param));
         }
 
         [Test]
         public void BalanceOf_GetNonExistantAccountBalance()
         {
-            var param = SimpleParameter.CreateParameter(new UInt160(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 })); //20 digit address but all zeroos
+            var param = new SimpleParameter(new UInt160(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 })); //20 digit address but all zeroos
             var balance = _contract.InvokeLocalMethod<BigInteger>("balanceOf", param);
             Assert.AreEqual(new BigInteger(0), balance);
         }
@@ -157,7 +160,7 @@ namespace SimpleNeo.Tests.Functional
         [Test]
         public void TransferDoubleOwnerBalanceToRecipient()
         {
-            var amount = SimpleParameter.CreateParameter(0);
+            var amount = new SimpleParameter(0);
 
 
             var fromStartingBalance = _contract.InvokeLocalMethod<BigInteger>("balanceOf", _ownerParameter);
@@ -185,7 +188,7 @@ namespace SimpleNeo.Tests.Functional
         public void TransferFromOwnerToRecipient()
         {
             BigInteger amountToTransfer = 101;
-            var amount = SimpleParameter.CreateParameter(amountToTransfer);
+            var amount = new SimpleParameter(amountToTransfer);
 
             var fromStartingBalance = _contract.InvokeLocalMethod<BigInteger>("balanceOf", _ownerParameter);
             var toStartingBalance = _contract.InvokeLocalMethod<BigInteger>("balanceOf", _nonOwnerParameter);
@@ -209,7 +212,7 @@ namespace SimpleNeo.Tests.Functional
         public void TransferFromSelfToSelf_ShouldFireEventButNotChangeBalance()
         {
             BigInteger amountToTransfer = 101;
-            var amount = SimpleParameter.CreateParameter(amountToTransfer);
+            var amount = new SimpleParameter(amountToTransfer);
 
             var fromStartingBalance = _contract.InvokeLocalMethod<BigInteger>("balanceOf", _ownerParameter);
 
@@ -227,7 +230,7 @@ namespace SimpleNeo.Tests.Functional
         public void TransferNegativeAmountFromOwnerToRecipeint()
         {
             BigInteger amountToTransfer = -101;
-            var amount = SimpleParameter.CreateParameter(amountToTransfer);
+            var amount = new SimpleParameter(amountToTransfer);
 
             var fromStartingBalance = _contract.InvokeLocalMethod<BigInteger>("balanceOf", _ownerParameter);
             var toStartingBalance = _contract.InvokeLocalMethod<BigInteger>("balanceOf", _nonOwnerParameter);
@@ -249,7 +252,7 @@ namespace SimpleNeo.Tests.Functional
         public void TransferNonOwnedBalance()
         {
             BigInteger amountToTransfer = -101;
-            var amount = SimpleParameter.CreateParameter(amountToTransfer);
+            var amount = new SimpleParameter(amountToTransfer);
 
             var fromStartingBalance = _contract.InvokeLocalMethod<BigInteger>("balanceOf", _ownerParameter);
             var toStartingBalance = _contract.InvokeLocalMethod<BigInteger>("balanceOf", _nonOwnerParameter);
@@ -271,7 +274,7 @@ namespace SimpleNeo.Tests.Functional
         public void TransferVerySmallAmountFromOwnerToRecipient()
         {
             BigInteger amountToTransfer = 000000001;
-            var amount = SimpleParameter.CreateParameter(amountToTransfer);
+            var amount = new SimpleParameter(amountToTransfer);
 
             var fromStartingBalance = _contract.InvokeLocalMethod<BigInteger>("balanceOf", _ownerParameter);
             var toStartingBalance = _contract.InvokeLocalMethod<BigInteger>("balanceOf", _nonOwnerParameter);
@@ -294,7 +297,7 @@ namespace SimpleNeo.Tests.Functional
         public void TransferZeroAmountFromOwnerToRecipeint()
         {
             BigInteger amountToTransfer = 0;
-            var amount = SimpleParameter.CreateParameter(amountToTransfer);
+            var amount = new SimpleParameter(amountToTransfer);
 
             var fromStartingBalance = _contract.InvokeLocalMethod<BigInteger>("balanceOf", _ownerParameter);
             var toStartingBalance = _contract.InvokeLocalMethod<BigInteger>("balanceOf", _nonOwnerParameter);
